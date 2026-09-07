@@ -1,0 +1,95 @@
+/* ============================================================
+   Notelets
+   Interactive mini-apps embedded directly in Obsidian notes
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   Notelet container
+   ------------------------------------------------------------ */
+
+.notelet-container {
+	width: 100%;
+	height: 100%;
+	min-height: 600px;
+
+	margin: 0;
+	padding: 0;
+
+	overflow: hidden;
+
+	background: var(--background-primary);
+}
+
+
+/* ------------------------------------------------------------
+   Notelet iframe
+   ------------------------------------------------------------ */
+
+.notelet-frame {
+	display: block;
+
+	width: 100%;
+	height: 80vh;
+	min-height: 600px;
+
+	margin: 0;
+	padding: 0;
+
+	border: 0;
+	border-radius: 0;
+
+	background: var(--background-primary);
+}
+
+
+/* ------------------------------------------------------------
+   Reading mode
+   Give Notelets as much horizontal room as possible
+   ------------------------------------------------------------ */
+
+.markdown-preview-view:has(.notelet-container) .markdown-preview-sizer {
+	max-width: none;
+	width: 100%;
+}
+
+.markdown-preview-view:has(.notelet-container) .markdown-preview-section {
+	width: 100%;
+	max-width: none;
+}
+
+
+/* ------------------------------------------------------------
+   Remove normal paragraph/block spacing around a Notelet
+   ------------------------------------------------------------ */
+
+.markdown-preview-view .notelet-container {
+	margin-block: 0;
+}
+
+
+/* ------------------------------------------------------------
+   Focus
+   Avoid Obsidian/browser focus outlines appearing around the
+   entire embedded application.
+   ------------------------------------------------------------ */
+
+.notelet-frame:focus {
+	outline: none;
+}
+
+
+/* ------------------------------------------------------------
+   Mobile / smaller windows
+   ------------------------------------------------------------ */
+
+@media (max-width: 768px) {
+	.notelet-container {
+		min-height: 500px;
+	}
+
+	.notelet-frame {
+		height: 75vh;
+		min-height: 500px;
+	}
+}
