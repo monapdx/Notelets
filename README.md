@@ -4,6 +4,8 @@
 
 <img src="https://raw.githubusercontent.com/monapdx/Notelets/refs/heads/main/banner.png">
 
+<div align="center"><img src="https://raw.githubusercontent.com/monapdx/Notelets/refs/heads/main/assets/pink-checkmark.gif"> <img src="https://raw.githubusercontent.com/monapdx/Notelets/refs/heads/main/assets/html.gif">  <img src="https://raw.githubusercontent.com/monapdx/Notelets/refs/heads/main/assets/hot-pink-lab.gif"></div>
+
 Notelets is an Obsidian plugin for creating and importing small frontend applications directly into your vault. A Notelet is still an ordinary Markdown note, but its embedded HTML, CSS, and JavaScript can render as a working interactive interface inside Obsidian.
 
 Import a self-contained HTML file, import an entire frontend project folder, or start from a blank Notelet template and build directly in Obsidian.
