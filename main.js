@@ -1457,6 +1457,9 @@ class NoteletRenderChild extends MarkdownRenderChild {
 				this.app
 			);
 
+		// Resolve images created later by embedded JavaScript as well.
+		renderedHtml = injectNoteletImageBridge(renderedHtml, this.app);
+
 		/*
 		 * Inject the localStorage bridge.
 		 */
@@ -1518,6 +1521,70 @@ class NoteletRenderChild extends MarkdownRenderChild {
  * ASSET RESOLUTION
  * ==============================================================
  */
+
+
+/* Resolve runtime image paths without exposing the Obsidian app to the frame. */
+function injectNoteletImageBridge(html, app) {
+    const root = NOTELETS_ASSETS_FOLDER + "/";
+    const paths = Object.create(null);
+    const names = Object.create(null);
+    for (const file of app.vault.getFiles()) {
+        if (!file.path.startsWith(root)) continue;
+        if (!/\.(?:png|jpe?g|gif|webp|avif|svg|ico|bmp|apng)$/i.test(file.path)) continue;
+        const url = app.vault.getResourcePath(file);
+        paths[file.path] = url;
+        const name = file.path.slice(file.path.lastIndexOf("/") + 1);
+        // A basename fallback is safe only when that filename is unique.
+        if (Object.prototype.hasOwnProperty.call(names, name)) names[name] = null;
+        else names[name] = url;
+    }
+    const data = JSON.stringify({ paths, names, root }).replace(/</g, "\\u003c");
+    const script = `<script data-notelets-images>(${noteletImageRuntime.toString()})(${data});</script>`;
+    return injectImmediatelyAfterHead(html, script);
+}
+
+function noteletImageRuntime(data) {
+    function resolve(raw) {
+        if (!raw || /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(raw)) return null;
+        let path = raw.split(/[?#]/)[0];
+        try { path = decodeURIComponent(path); } catch { return null; }
+        path = path.replace(/\\/g, "/");
+        const segments = [];
+        for (const segment of path.split("/")) {
+            if (!segment || segment === ".") continue;
+            if (segment === "..") segments.pop();
+            else segments.push(segment);
+        }
+        path = segments.join("/");
+        const candidates = [path, "Notelets/" + path, data.root + path];
+        for (const candidate of candidates) {
+            if (Object.prototype.hasOwnProperty.call(data.paths, candidate)) return data.paths[candidate];
+        }
+        return data.names[segments[segments.length - 1]] || null;
+    }
+    function fixImage(img) {
+        const raw = img.getAttribute("src");
+        const url = resolve(raw);
+        if (url && url !== raw) img.setAttribute("src", url);
+    }
+    function scan(node) {
+        if (node.nodeType !== 1) return;
+        if (node.tagName === "IMG") fixImage(node);
+        node.querySelectorAll("img[src]").forEach(fixImage);
+    }
+    const observer = new MutationObserver(records => {
+        for (const record of records) {
+            if (record.type === "attributes") fixImage(record.target);
+            else record.addedNodes.forEach(scan);
+        }
+    });
+    observer.observe(document.documentElement, {
+        childList: true, subtree: true, attributes: true, attributeFilter: ["src"]
+    });
+    scan(document.documentElement);
+    // Keep the observer alive until the iframe document is unloaded.
+    window.addEventListener("pagehide", () => observer.disconnect(), { once: true });
+}
 
 function resolveNoteletAssetPlaceholders(
 	html,
