@@ -1,5 +1,7 @@
 # Notelets
 
+![Obsidian Badge](https://img.shields.io/badge/Obsidian-7C3AED?logo=obsidian&logoColor=fff&style=flat-square)
+
 **Turn Obsidian notes into interactive mini-apps.**
 
 <img src="https://raw.githubusercontent.com/monapdx/Notelets/refs/heads/main/banner.png">
